@@ -131,7 +131,7 @@ public class Interpreter   {
 
 							if(cantidad != 0)
 							{
-								
+
 								boolean esta = false;
 								Iterator<Tupla> it = arr.iterator();
 								for(int i=0 ; i<arr.size() && esta == false ; i++)
@@ -242,7 +242,7 @@ public class Interpreter   {
 							}
 							else if(partes[1].equals("south"))
 							{
-								
+
 								if(orientacion == 0)
 								{
 									world.turnRight();
@@ -288,7 +288,7 @@ public class Interpreter   {
 								else if(orientacion == 1)
 								{
 									world.turnRight();
-									
+
 								}
 								else if(orientacion == 2)
 								{
@@ -300,23 +300,24 @@ public class Interpreter   {
 							{
 								throw new Exception("se esperaba north, south, east or west: Invalid Entrance");
 							}
-					}
-					else if(cadauno.startsWith("put: "))
-					{
-						
-					}
-					else if(cadauno.startsWith("pick: "))
-					{
-						
-					}
-					else if(cadauno.startsWith("move:"))
-					{
-						
-					}
-					else
-					{
-						System.out.println(cadauno);
-						throw new Exception("unknown block");
+						}
+						else if(cadauno.startsWith("put: "))
+						{
+
+						}
+						else if(cadauno.startsWith("pick: "))
+						{
+
+						}
+						else if(cadauno.startsWith("move:"))
+						{
+
+						}
+						else
+						{
+							System.out.println(cadauno);
+							throw new Exception("unknown block");
+						}
 					}
 				}
 			}
