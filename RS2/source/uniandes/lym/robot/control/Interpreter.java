@@ -134,15 +134,11 @@ public class Interpreter   {
 								
 								boolean esta = false;
 								Iterator<Tupla> it = arr.iterator();
-								while(it.hasNext() && esta == false)
+								for(int i=0 ; i<arr.size() && esta == false ; i++)
 								{
-									it.next();
-									Tupla t = (Tupla) it;
-									System.out.println(t.darNombre());
-									if(t.darNombre().equals(partes[3]))
+									if(arr.get(i).darNombre().equals(partes[3]))
 									{
-										c=t;
-										t.aumentar(cantidad);
+										arr.get(i).aumentar(cantidad);
 										esta = true;
 									}
 								}
@@ -165,6 +161,157 @@ public class Interpreter   {
 						{
 							throw new Exception("unknown block");
 						}
+					}
+					else if(cadauno.startsWith("move: "))
+					{
+						int cantidad = 0;
+						String[] partes = cadauno.split(" ");
+						if(partes[0].equals("move:"))
+						{
+							boolean esta = false;
+							Iterator<Tupla> it = arr.iterator();
+							for(int i=0 ; i<arr.size() && esta == false ; i++)
+							{
+								if(arr.get(i).darNombre().equals(partes[1]))
+								{
+									cantidad = arr.get(i).darCantidad();
+									esta = true;
+								}
+							}
+							if(esta == false)
+							{
+								try
+								{
+									cantidad = Integer.parseInt(partes[1]);
+								} catch (Exception e) {
+									throw new Exception("Se esperaba un número o variable luego de move:");
+								}
+							}
+							world.moveForward(cantidad);
+						}
+					}
+					else if(cadauno.startsWith("turn: "))
+					{
+						String[] partes = cadauno.split(" ");
+						if(partes[0].equals("turn:"))
+						{
+							if(partes[1].equals("left"))
+							{
+								world.turnRight();
+								world.turnRight();
+								world.turnRight();
+							}
+							else if(partes[1].equals("right"))
+							{
+								world.turnRight();
+							}
+							else if(partes[1].equals("around"))
+							{
+								world.turnRight();
+								world.turnRight();
+							}
+							else
+							{
+								throw new Exception("se esperaba left, right o around: Invalid Entrance");
+							}
+						}
+					}
+					else if(cadauno.startsWith("face: "))
+					{
+						String[] partes = cadauno.split(" ");
+						if(partes[0].equals("face:"))
+						{
+							int orientacion = world.getOrientacion();
+							if(partes[1].equals("north"))
+							{
+								if(orientacion == 1)
+								{
+									world.turnRight();
+									world.turnRight();
+								}
+								else if(orientacion == 2)
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+								}
+								else if(orientacion == 3)
+								{
+									world.turnRight();
+								}
+							}
+							else if(partes[1].equals("south"))
+							{
+								
+								if(orientacion == 0)
+								{
+									world.turnRight();
+									world.turnRight();
+								}
+								else if(orientacion == 2)
+								{
+									world.turnRight();
+								}
+								else if(orientacion == 3)
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+								}
+							}
+							else if(partes[1].equals("east"))
+							{
+								if(orientacion == 0)
+								{
+									world.turnRight();
+								}
+								else if(orientacion == 1)
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+								}
+								else if(orientacion == 3)
+								{
+									world.turnRight();
+									world.turnRight();
+								}
+							}
+							else if(partes[1].equals("west"))
+							{
+								if(orientacion == 0)
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+								}
+								else if(orientacion == 1)
+								{
+									world.turnRight();
+									
+								}
+								else if(orientacion == 2)
+								{
+									world.turnRight();
+									world.turnRight();
+								}
+							}
+							else
+							{
+								throw new Exception("se esperaba north, south, east or west: Invalid Entrance");
+							}
+					}
+					else if(cadauno.startsWith("put: "))
+					{
+						
+					}
+					else if(cadauno.startsWith("pick: "))
+					{
+						
+					}
+					else if(cadauno.startsWith("move:"))
+					{
+						
 					}
 					else
 					{
