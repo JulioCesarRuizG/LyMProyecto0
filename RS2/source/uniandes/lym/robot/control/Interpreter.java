@@ -6,6 +6,8 @@ import java.util.Iterator;
 
 import javax.swing.SwingUtilities;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import uniandes.lym.robot.kernel.*;
 
 
@@ -88,547 +90,45 @@ public class Interpreter   {
 	 * @throws Exception 
 	 */
 
-	public String process(String input) throws Error, Exception
+	public String process(String input) 
 	{   
-		Tupla c = null;
-		ArrayList<Tupla> arr = new ArrayList<Interpreter.Tupla>();
-		if(input.startsWith("ROBOT_R")&&input.contains("BEGIN")&&input.endsWith("END"))
-		{
-			String parte2 = input.substring(7);
-			String[] cadenaFinal = parte2.split("BEGIN");
-
-			String sep1 = cadenaFinal[0].substring(4);
-			String[] nombres = sep1.split(",");
-
-			for(String s:nombres)
-			{
-				Tupla t = new Tupla(s);
-				arr.add(t);
-			}
-
-
-			String[] comandos = cadenaFinal[1].split(";");
-			for(String cadauno : comandos)
-			{
-				if(cadauno.endsWith("END"))
-				{
-					String ultimo = cadauno.substring(0, cadauno.length()-3);
-					cadauno = ultimo;
-				}
-				if(cadauno.startsWith("assign:"))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes[0].equals("assign:") && partes[2].equals("to:") && partes.length == 4)
-					{
-						int cantidad = 0;
-						try
-						{
-							cantidad = Integer.parseInt(partes[1]);
-						} catch (Exception e) {
-							throw new Exception("Se esperaba un número luego de assign:");
-						}
-
-						if(cantidad != 0)
-						{
-
-							boolean esta = false;
-							for(int i=0 ; i<arr.size() && esta == false ; i++)
-							{
-								if(arr.get(i).darNombre().equals(partes[3] ))
-								{
-									arr.get(i).aumentar(cantidad);
-									esta = true;
-									c = arr.get(i);
-								}
-							}
-							if(esta == true)
-							{
-								System.out.println(c.darCantidad() + "");
-							}
-							else
-							{
-								throw new Exception("unknown var");
-							}
-						}
-						else
-						{
-
-							throw new Exception("unknown type");
-						}
-					}
-					else
-					{
-						throw new Exception("unknown block");
-					}
-				}
-				else if(cadauno.startsWith("move: "))
-				{
-					int cantidad = 0;
-					String[] partes = cadauno.split(" ");
-					if(partes.length == 2)
-					{
-						if(partes[0].equals("move:"))
-						{
-							boolean esta = false;
-							Iterator<Tupla> it = arr.iterator();
-							for(int i=0 ; i<arr.size() && esta == false ; i++)
-							{
-								if(arr.get(i).darNombre().equals(partes[1]))
-								{
-									cantidad = arr.get(i).darCantidad();
-									esta = true;
-								}
-							}
-							if(esta == false)
-							{
-								try
-								{
-									cantidad = Integer.parseInt(partes[1]);
-								} catch (Exception e) {
-									throw new Exception("Se esperaba un número o variable luego de move:");
-								}
-							}
-							world.moveForward(cantidad);
-						}
-					}
-					else if(partes[2].equals("toThe") && partes.length == 4)
-					{
-						if(partes[0].equals("move:"))
-						{
-							boolean esta = false;
-							Iterator<Tupla> it = arr.iterator();
-							for(int i=0 ; i<arr.size() && esta == false ; i++)
-							{
-								if(arr.get(i).darNombre().equals(partes[1]))
-								{
-									cantidad = arr.get(i).darCantidad();
-									esta = true;
-								}
-							}
-							if(esta == false)
-							{
-								try
-								{
-									cantidad = Integer.parseInt(partes[1]);
-								} catch (Exception e) {
-									throw new Exception("Se esperaba un número o variable luego de move:");
-								}
-							}
-
-
-							if(cantidad > 0)
-							{
-								if(partes[3].equals("front"))
-								{
-									world.moveForward(cantidad);
-								}
-								else if(partes[3].equals("right"))
-								{
-									world.turnRight();
-									world.moveForward(cantidad);
-									world.turnRight();
-									world.turnRight();
-									world.turnRight();
-								}
-								else if(partes[3].equals("left"))
-								{
-									world.turnRight();
-									world.turnRight();
-									world.turnRight();
-									world.moveForward(cantidad);
-									world.turnRight();
-								}
-								else if(partes[3].equals("back"))
-								{
-									world.turnRight();
-									world.turnRight();
-									world.moveForward(cantidad);
-									world.turnRight();
-									world.turnRight();
-								}
-								else {
-									throw new Exception("se esperaba front, left, right o back: Invalid Entrance");
-								}
-							}
-						}
-					}
-					else if(partes[2].equals("inDir")&& partes.length == 4)
-					{
-						if(partes[0].equals("move"))
-						{
-							boolean esta = false;
-							Iterator<Tupla> it = arr.iterator();
-							for(int i=0 ; i<arr.size() && esta == false ; i++)
-							{
-								if(arr.get(i).darNombre().equals(partes[1]))
-								{
-									cantidad = arr.get(i).darCantidad();
-									esta = true;
-								}
-							}
-							if(esta == false)
-							{
-								try
-								{
-									cantidad = Integer.parseInt(partes[1]);
-								} catch (Exception e) {
-									throw new Exception("Se esperaba un número o variable luego de move:");
-								}
-							}
-
-
-							if(cantidad > 0)
-							{
-								if(partes[3].equals("north"))
-								{
-									if(world.facingEast())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingSouth())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingWest())
-									{
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else
-									{
-										world.moveForward(cantidad);
-									}
-								}
-								else if(partes[3].equals("south"))
-								{
-									if(world.facingWest())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingNorth())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingEast())
-									{
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else
-									{
-										world.moveForward(cantidad);
-									}
-								}
-								else if(partes[3].equals("east"))
-								{
-									if(world.facingSouth())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingWest())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingNorth())
-									{
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else
-									{
-										world.moveForward(cantidad);
-									}
-								}
-								else if(partes[3].equals("west"))
-								{
-									if(world.facingNorth())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingEast())
-									{
-										world.turnRight();
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else if(world.facingSouth())
-									{
-										world.turnRight();
-										world.moveForward(cantidad);
-									}
-									else
-									{
-										world.moveForward(cantidad);
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						throw new Exception("unknown move");
-					}
-
-				}
-				else if(cadauno.startsWith("turn: "))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes[0].equals("turn:") && partes.length == 2)
-					{
-						if(partes[1].equals("left"))
-						{
-							world.turnRight();
-							world.turnRight();
-							world.turnRight();
-						}
-						else if(partes[1].equals("right"))
-						{
-							world.turnRight();
-						}
-						else if(partes[1].equals("around"))
-						{
-							world.turnRight();
-							world.turnRight();
-						}
-						else
-						{
-							throw new Exception("se esperaba left, right o around: Invalid Entrance");
-						}
-					}
-				}
-				else if(cadauno.startsWith("face: "))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes[0].equals("face:") && partes.length == 2)
-					{
-						int orientacion = world.getOrientacion();
-						if(partes[1].equals("north"))
-						{
-							if(orientacion == 1)
-							{
-								world.turnRight();
-								world.turnRight();
-							}
-							else if(orientacion == 2)
-							{
-								world.turnRight();
-								world.turnRight();
-								world.turnRight();
-							}
-							else if(orientacion == 3)
-							{
-								world.turnRight();
-							}
-						}
-						else if(partes[1].equals("south"))
-						{
-
-							if(orientacion == 0)
-							{
-								world.turnRight();
-								world.turnRight();
-							}
-							else if(orientacion == 2)
-							{
-								world.turnRight();
-							}
-							else if(orientacion == 3)
-							{
-								world.turnRight();
-								world.turnRight();
-								world.turnRight();
-							}
-						}
-						else if(partes[1].equals("east"))
-						{
-							if(orientacion == 0)
-							{
-								world.turnRight();
-							}
-							else if(orientacion == 1)
-							{
-								world.turnRight();
-								world.turnRight();
-								world.turnRight();
-							}
-							else if(orientacion == 3)
-							{
-								world.turnRight();
-								world.turnRight();
-							}
-						}
-						else if(partes[1].equals("west"))
-						{
-							if(orientacion == 0)
-							{
-								world.turnRight();
-								world.turnRight();
-								world.turnRight();
-							}
-							else if(orientacion == 1)
-							{
-								world.turnRight();
-
-							}
-							else if(orientacion == 2)
-							{
-								world.turnRight();
-								world.turnRight();
-							}
-						}
-						else
-						{
-							throw new Exception("se esperaba north, south, east or west: Invalid Entrance");
-						}
-					}
-				}
-				else if(cadauno.startsWith("put: "))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes[0].equals("put:") && partes.length == 4)
-					{
-						int cantidad = 0;
-						boolean esta = false;
-						Iterator<Tupla> it = arr.iterator();
-						for(int i=0 ; i<arr.size() && esta == false ; i++)
-						{
-							if(arr.get(i).darNombre().equals(partes[1]))
-							{
-								cantidad = arr.get(i).darCantidad();
-								esta = true;
-							}
-						}
-						if(esta == false)
-						{
-							try
-							{
-								cantidad = Integer.parseInt(partes[1]);
-							} catch (Exception e) {
-								throw new Exception("Se esperaba un número o variable luego de move:");
-							}
-						}
-
-
-						if(cantidad > 0)
-						{
-							if(partes[3].equals("Balloons"))
-							{
-								if(world.getMisGlobos() < cantidad)
-								{
-									throw new Exception("No hay suficientes globos");
-								}
-								else
-								{
-									world.putBalloons(cantidad);
-								}
-							}
-							else if(partes[3].equals("Chips"))
-							{
-								if(world.getMisGlobos() < cantidad)
-								{
-									throw new Exception("No hay suficientes chips");
-								}
-								else
-								{
-									world.putChips(cantidad);
-								}
-							}
-							else
-							{
-								throw new Exception("se esperaba Balloons o Chips: Invalid Entrance");
-							}
-						}
-					}
-				}
-				else if(cadauno.startsWith("pick: "))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes[0].equals("pick:") && partes.length == 4)
-					{
-						int cantidad = 0;
-						boolean esta = false;
-						Iterator<Tupla> it = arr.iterator();
-						for(int i=0 ; i<arr.size() && esta == false ; i++)
-						{
-							if(arr.get(i).darNombre().equals(partes[1]))
-							{
-								cantidad = arr.get(i).darCantidad();
-								esta = true;
-							}
-						}
-						if(esta == false)
-						{
-							try
-							{
-								cantidad = Integer.parseInt(partes[1]);
-							} catch (Exception e) {
-								throw new Exception("Se esperaba un número o variable luego de move:");
-							}
-						}
-
-
-						if(cantidad > 0)
-						{
-							if(partes[3].equals("Balloons"))
-							{
-								world.grabBalloons(cantidad);
-							}
-							else if(partes[3].equals("Chips"))
-							{
-								world.pickChips(cantidad);
-							}
-							else
-							{
-								throw new Exception("se esperaba Balloons o Chips: Invalid Entrance");
-							}
-						}
-					}
-				}
-				else if(cadauno.startsWith("Skip"))
-				{
-					String[] partes = cadauno.split(" ");
-					if(partes.length == 1 && partes[0].equals("Skip"))
-					{
-
-					}
-					else
-					{
-						throw new Exception("se esperaba Skip: Invalid Entrance");
-					}
-				}
-				else
-				{
-					System.out.println(cadauno);
-					throw new Exception("unknown block");
-
-				}
-			}
-		}
-		else
-		{
-			throw new Exception("unknown command");
-		}
-
-
 		StringBuffer output=new StringBuffer("SYSTEM RESPONSE: -->\n");	
+		
+		try
+		{
+			ArrayList<Tupla> arr = new ArrayList<Interpreter.Tupla>();
+			if(input.startsWith("ROBOT_R")&&input.contains("BEGIN")&&input.endsWith("END"))
+			{
+				String parte2 = input.substring(7);
+				String[] cadenaFinal = parte2.split("BEGIN");
+
+				String sep1 = cadenaFinal[0].substring(4);
+				String[] nombres = sep1.split(",");
+
+				for(String s:nombres)
+				{
+					Tupla t = new Tupla(s);
+					arr.add(t);
+				}
+
+				String[] comandos = cadenaFinal[1].split(";");
+
+				metodoComandos(comandos, arr);
+
+			}
+			else
+			{
+				throw new Exception("unknown command");
+			}
+		}
+		catch( Exception e )
+		{
+			output.append( e.getMessage( ) );
+		}
+		return output.toString( );
+
+		
+		/** StringBuffer output=new StringBuffer("SYSTEM RESPONSE: -->\n");	
 
 		int i;
 		int n;
@@ -636,8 +136,10 @@ public class Interpreter   {
 		n= input.length();
 
 		i  = 0;
-		try	    {
-			while (i < n &&  ok) {
+		try	    
+		{
+			while (i < n &&  ok) 
+			{
 				switch (input.charAt(i)) {
 				case 'M': world.moveForward(1); output.append("move \n");break;
 				case 'R': world.turnRight(); output.append("turnRignt \n");break;
@@ -669,9 +171,533 @@ public class Interpreter   {
 
 		}
 		catch (Error e ){
-			output.append("Error!!!  "+e.getMessage());
+			output.append("Error!!!  "+e.getMessage());}
+
+		return output.toString();
+		 */
+
+	}
+
+	/**
+	 * metodo que ejecuta los comandos ingresados por el usuarios
+	 */
+	public void metodoComandos( String[] comandos, ArrayList<Tupla> arreglo) throws Error, Exception
+	{
+		Tupla c = null;
+		for(String cadauno : comandos)
+		{
+			if(cadauno.endsWith("END"))
+			{
+				String ultimo = cadauno.substring(0, cadauno.length()-3);
+				cadauno = ultimo;
+			}
+			if(cadauno.startsWith("assign:"))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[0].equals("assign:") && partes[2].equals("to:") && partes.length == 4)
+				{
+					int cantidad = 0;
+					try
+					{
+						cantidad = Integer.parseInt(partes[1]);
+					} catch (Exception e) {
+						throw new Exception("Se esperaba un número luego de assign:");
+					}
+
+					if(cantidad != 0)
+					{
+
+						boolean esta = false;
+						for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+						{
+							if(arreglo.get(i).darNombre().equals(partes[3] ))
+							{
+								arreglo.get(i).aumentar(cantidad);
+								esta = true;
+								c = arreglo.get(i);
+							}
+						}
+						if(esta == true)
+						{
+							System.out.println(c.darCantidad() + "");
+						}
+						else
+						{
+							throw new Exception("unknown var");
+						}
+					}
+					else
+					{
+
+						throw new Exception("unknown type");
+					}
+				}
+				else
+				{
+					throw new Exception("unknown block");
+				}
+			}
+			else if(cadauno.startsWith("move: "))
+			{
+				int cantidad = 0;
+				String[] partes = cadauno.split(" ");
+				if(partes.length == 2)
+				{
+					if(partes[0].equals("move:"))
+					{
+						boolean esta = false;
+						Iterator<Tupla> it = arreglo.iterator();
+						for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+						{
+							if(arreglo.get(i).darNombre().equals(partes[1]))
+							{
+								cantidad = arreglo.get(i).darCantidad();
+								esta = true;
+							}
+						}
+						if(esta == false)
+						{
+							try
+							{
+								cantidad = Integer.parseInt(partes[1]);
+							} catch (Exception e) {
+								throw new Exception("Se esperaba un número o variable luego de move:");
+							}
+						}
+						world.moveForward(cantidad);
+					}
+				}
+				else if(partes[2].equals("toThe") && partes.length == 4)
+				{
+					if(partes[0].equals("move:"))
+					{
+						boolean esta = false;
+						Iterator<Tupla> it = arreglo.iterator();
+						for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+						{
+							if(arreglo.get(i).darNombre().equals(partes[1]))
+							{
+								cantidad = arreglo.get(i).darCantidad();
+								esta = true;
+							}
+						}
+						if(esta == false)
+						{
+							try
+							{
+								cantidad = Integer.parseInt(partes[1]);
+							} catch (Exception e) {
+								throw new Exception("Se esperaba un número o variable luego de move:");
+							}
+						}
+
+
+						if(cantidad > 0)
+						{
+							if(partes[3].equals("front"))
+							{
+								world.moveForward(cantidad);
+							}
+							else if(partes[3].equals("right"))
+							{
+								world.turnRight();
+								world.moveForward(cantidad);
+								world.turnRight();
+								world.turnRight();
+								world.turnRight();
+							}
+							else if(partes[3].equals("left"))
+							{
+								world.turnRight();
+								world.turnRight();
+								world.turnRight();
+								world.moveForward(cantidad);
+								world.turnRight();
+							}
+							else if(partes[3].equals("back"))
+							{
+								world.turnRight();
+								world.turnRight();
+								world.moveForward(cantidad);
+								world.turnRight();
+								world.turnRight();
+							}
+							else {
+								throw new Exception("se esperaba front, left, right o back: Invalid Entrance");
+							}
+						}
+					}
+				}
+				else if(partes[2].equals("inDir")&& partes.length == 4)
+				{
+					if(partes[0].equals("move"))
+					{
+						boolean esta = false;
+						Iterator<Tupla> it = arreglo.iterator();
+						for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+						{
+							if(arreglo.get(i).darNombre().equals(partes[1]))
+							{
+								cantidad = arreglo.get(i).darCantidad();
+								esta = true;
+							}
+						}
+						if(esta == false)
+						{
+							try
+							{
+								cantidad = Integer.parseInt(partes[1]);
+							} catch (Exception e) {
+								throw new Exception("Se esperaba un número o variable luego de move:");
+							}
+						}
+
+
+						if(cantidad > 0)
+						{
+							if(partes[3].equals("north"))
+							{
+								if(world.facingEast())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingSouth())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingWest())
+								{
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else
+								{
+									world.moveForward(cantidad);
+								}
+							}
+							else if(partes[3].equals("south"))
+							{
+								if(world.facingWest())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingNorth())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingEast())
+								{
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else
+								{
+									world.moveForward(cantidad);
+								}
+							}
+							else if(partes[3].equals("east"))
+							{
+								if(world.facingSouth())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingWest())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingNorth())
+								{
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else
+								{
+									world.moveForward(cantidad);
+								}
+							}
+							else if(partes[3].equals("west"))
+							{
+								if(world.facingNorth())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingEast())
+								{
+									world.turnRight();
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else if(world.facingSouth())
+								{
+									world.turnRight();
+									world.moveForward(cantidad);
+								}
+								else
+								{
+									world.moveForward(cantidad);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					throw new Exception("unknown move");
+				}
+
+			}
+			else if(cadauno.startsWith("turn: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[0].equals("turn:") && partes.length == 2)
+				{
+					if(partes[1].equals("left"))
+					{
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(partes[1].equals("right"))
+					{
+						world.turnRight();
+					}
+					else if(partes[1].equals("around"))
+					{
+						world.turnRight();
+						world.turnRight();
+					}
+					else
+					{
+						throw new Exception("se esperaba left, right o around: Invalid Entrance");
+					}
+				}
+			}
+			else if(cadauno.startsWith("face: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[0].equals("face:") && partes.length == 2)
+				{
+					int orientacion = world.getOrientacion();
+					if(partes[1].equals("north"))
+					{
+						if(orientacion == 1)
+						{
+							world.turnRight();
+							world.turnRight();
+						}
+						else if(orientacion == 2)
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+						}
+						else if(orientacion == 3)
+						{
+							world.turnRight();
+						}
+					}
+					else if(partes[1].equals("south"))
+					{
+
+						if(orientacion == 0)
+						{
+							world.turnRight();
+							world.turnRight();
+						}
+						else if(orientacion == 2)
+						{
+							world.turnRight();
+						}
+						else if(orientacion == 3)
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+						}
+					}
+					else if(partes[1].equals("east"))
+					{
+						if(orientacion == 0)
+						{
+							world.turnRight();
+						}
+						else if(orientacion == 1)
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+						}
+						else if(orientacion == 3)
+						{
+							world.turnRight();
+							world.turnRight();
+						}
+					}
+					else if(partes[1].equals("west"))
+					{
+						if(orientacion == 0)
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+						}
+						else if(orientacion == 1)
+						{
+							world.turnRight();
+
+						}
+						else if(orientacion == 2)
+						{
+							world.turnRight();
+							world.turnRight();
+						}
+					}
+					else
+					{
+						throw new Exception("se esperaba north, south, east or west: Invalid Entrance");
+					}
+				}
+			}
+			else if(cadauno.startsWith("put: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[0].equals("put:") && partes.length == 4)
+				{
+					int cantidad = 0;
+					boolean esta = false;
+					Iterator<Tupla> it = arreglo.iterator();
+					for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+					{
+						if(arreglo.get(i).darNombre().equals(partes[1]))
+						{
+							cantidad = arreglo.get(i).darCantidad();
+							esta = true;
+						}
+					}
+					if(esta == false)
+					{
+						try
+						{
+							cantidad = Integer.parseInt(partes[1]);
+						} catch (Exception e) {
+							throw new Exception("Se esperaba un número o variable luego de move:");
+						}
+					}
+
+
+					if(cantidad > 0)
+					{
+						if(partes[3].equals("Balloons"))
+						{
+							if(world.getMisGlobos() < cantidad)
+							{
+								throw new Exception("No hay suficientes globos");
+							}
+							else
+							{
+								world.putBalloons(cantidad);
+							}
+						}
+						else if(partes[3].equals("Chips"))
+						{
+							if(world.getMisGlobos() < cantidad)
+							{
+								throw new Exception("No hay suficientes chips");
+							}
+							else
+							{
+								world.putChips(cantidad);
+							}
+						}
+						else
+						{
+							throw new Exception("se esperaba Balloons o Chips: Invalid Entrance");
+						}
+					}
+				}
+			}
+			else if(cadauno.startsWith("pick: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[0].equals("pick:") && partes.length == 4)
+				{
+					int cantidad = 0;
+					boolean esta = false;
+					Iterator<Tupla> it = arreglo.iterator();
+					for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+					{
+						if(arreglo.get(i).darNombre().equals(partes[1]))
+						{
+							cantidad = arreglo.get(i).darCantidad();
+							esta = true;
+						}
+					}
+					if(esta == false)
+					{
+						try
+						{
+							cantidad = Integer.parseInt(partes[1]);
+						} catch (Exception e) {
+							throw new Exception("Se esperaba un número o variable luego de move:");
+						}
+					}
+
+
+					if(cantidad > 0)
+					{
+						if(partes[3].equals("Balloons"))
+						{
+							world.grabBalloons(cantidad);
+						}
+						else if(partes[3].equals("Chips"))
+						{
+							world.pickChips(cantidad);
+						}
+						else
+						{
+							throw new Exception("se esperaba Balloons o Chips: Invalid Entrance");
+						}
+					}
+				}
+			}
+			else if(cadauno.startsWith("Skip"))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes.length == 1 && partes[0].equals("Skip"))
+				{
+
+				}
+				else
+				{
+					throw new Exception("se esperaba Skip: Invalid Entrance");
+				}
+			}
+			else
+			{
+				System.out.println(cadauno);
+				throw new Exception("unknown block");
+
+			}
 
 		}
-		return output.toString();
 	}
+
 }
