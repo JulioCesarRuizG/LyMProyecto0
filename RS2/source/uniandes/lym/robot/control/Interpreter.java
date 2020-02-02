@@ -93,7 +93,7 @@ public class Interpreter   {
 	public String process(String input) 
 	{   
 		StringBuffer output=new StringBuffer("SYSTEM RESPONSE: -->\n");	
-		
+
 		try
 		{
 			ArrayList<Tupla> arr = new ArrayList<Interpreter.Tupla>();
@@ -127,7 +127,7 @@ public class Interpreter   {
 		}
 		return output.toString( );
 
-		
+
 		/** StringBuffer output=new StringBuffer("SYSTEM RESPONSE: -->\n");	
 
 		int i;
@@ -176,6 +176,248 @@ public class Interpreter   {
 		return output.toString();
 		 */
 
+	}
+
+	/**
+	 * Metodo para evaluar los condicionales
+	 * @throws Exception 
+	 */
+	public int evaluarCondicional(String cadauno, ArrayList<Tupla> arreglo) throws Exception
+	{
+		String[] partes = cadauno.split(" ");
+		if(partes.length >= 5 && partes[0].equals("if:"))
+		{
+			if(partes[1].equals("facing:"))
+			{
+				if(partes[2].equals("north")) 
+				{
+					if(world.facingNorth())
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				else if(partes[2].equals("south"))
+				{
+					if(world.facingSouth())
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				else if(partes[2].equals("east"))
+				{
+					if(world.facingEast())
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				else if(partes[2].equals("west"))
+				{
+					if(world.facingWest())
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+				else
+				{
+					throw new Exception("Invalid entrance");
+				}
+			}
+			else if(partes[1].equals("canPut:"))
+			{
+				int cantidad = 0;
+				boolean esta = false;
+				Iterator<Tupla> it = arreglo.iterator();
+				for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+				{
+					if(arreglo.get(i).darNombre().equals(partes[2]))
+					{
+						cantidad = arreglo.get(i).darCantidad();
+						esta = true;
+					}
+				}
+				if(esta == false)
+				{
+					try
+					{
+						cantidad = Integer.parseInt(partes[2]);
+					} catch (Exception e) {
+						throw new Exception("Se esperaba un número o variable luego de canPut:");
+					}
+				}
+				if(cantidad > 0)
+				{
+					if(partes[3].equals("of:"))
+					{
+						if(partes[4].equals("balloons"))
+						{
+							try
+							{
+								world.putBalloons(cantidad);
+								return 1;
+							}
+							catch (Exception e) {
+								return 0;
+							}
+						}
+						else if(partes[4].equals("chips"))
+						{
+							try
+							{
+								world.putChips(cantidad);
+								return 1;
+							}
+							catch (Exception e) {
+								return 0;
+							}
+						}
+						else
+						{
+							throw new Exception("Invalid entrance");
+						}
+					}
+					else
+					{
+						throw new Exception("Invalid entrance");
+					}
+				}
+			}
+			else if(partes[1].equals("capPick:"))
+			{
+				int cantidad = 0;
+				boolean esta = false;
+				Iterator<Tupla> it = arreglo.iterator();
+				for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+				{
+					if(arreglo.get(i).darNombre().equals(partes[2]))
+					{
+						cantidad = arreglo.get(i).darCantidad();
+						esta = true;
+					}
+				}
+				if(esta == false)
+				{
+					try
+					{
+						cantidad = Integer.parseInt(partes[2]);
+					} catch (Exception e) {
+						throw new Exception("Se esperaba un número o variable luego de canPick:");
+					}
+				}
+				if(cantidad > 0)
+				{
+					if(partes[3].equals("of:"))
+					{
+						if(partes[4].equals("balloons"))
+						{
+							try
+							{
+								world.grabBalloons(cantidad);
+								return 1;
+							}
+							catch (Exception e) {
+								return 0;
+							}
+						}
+						else if(partes[4].equals("chips"))
+						{
+							try
+							{
+								world.pickChips(cantidad);
+								return 1;
+							}
+							catch (Exception e) {
+								return 0;
+							}
+						}
+						else
+						{
+							throw new Exception("Invalid entrance");
+						}
+					}
+					else
+					{
+						throw new Exception("Invalid entrance");
+					}
+				}
+			}
+			else if(partes[1].equals("canMove:"))
+			{
+				if(partes[2].equals("north"))
+				{
+					if(world.getPosicion().getY() == 0)
+					{
+						return 0;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+				else if(partes[2].equals("south"))
+				{
+					if(world.getPosicion().getY() == 7)
+					{
+						if(partes[5].equals("else:"))
+						{
+							return 0;
+						}
+						else
+						{
+							return 1;
+						}
+					}
+				}
+				else if(partes[2].equals("west"))
+				{
+					if(world.getPosicion().getX() == 0)
+					{
+						if(partes[5].equals("else:"))
+						{
+							return 0;
+						}
+						else
+						{
+							return 1;
+						}
+					}
+				}
+				else if(partes[2].equals("east"))
+				{
+					if(world.getPosicion().getX() == 7)
+					{
+						if(partes[5].equals("else:"))
+						{
+							return 0;
+						}
+						else
+						{
+							return 1;
+						}
+					}
+				}
+				else
+				{
+					throw new Exception("Invalid entrance");
+				}
+			}
+		}
+		return 2;
 	}
 
 	/**
@@ -690,14 +932,276 @@ public class Interpreter   {
 					throw new Exception("se esperaba Skip: Invalid Entrance");
 				}
 			}
-			else
+			else if(cadauno.startsWith("if: "))
 			{
-				System.out.println(cadauno);
-				throw new Exception("unknown block");
+				String[] partes = cadauno.split(" ");
+				if(partes[1].equals("not:"))
+				{
+					cadauno = "if: " + cadauno.substring(9);
+					try
+					{
+						if(evaluarCondicional(cadauno, arreglo) == 0)
+						{
+							if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+							{
+								if(partes[5].equals("then:"))
+								{
+									String[] iter = partes[6].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+							else
+							{
+								if(partes[4].equals("then:"))
+								{
+									String[] iter = partes[5].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+
+						}
+						else if(evaluarCondicional(cadauno, arreglo) == 1)
+						{
+							if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+							{
+								if(partes[7].equals("then:"))
+								{
+									String[] iter = partes[8].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+							else
+							{
+								if(partes[6].equals("then:"))
+								{
+									String[] iter = partes[7].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+						}
+					}
+					catch (Exception e) {
+						throw new Exception("Invalid Entrance");
+					}
+				}
+				else
+				{
+					try
+					{
+						if(evaluarCondicional(cadauno, arreglo) == 1)
+						{
+							if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+							{
+								if(partes[5].equals("then:"))
+								{
+									String[] iter = partes[6].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+							else
+							{
+								if(partes[4].equals("then:"))
+								{
+									String[] iter = partes[5].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+
+						}
+						else if(evaluarCondicional(cadauno, arreglo) == 0)
+						{
+							if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+							{
+								if(partes[7].equals("then:"))
+								{
+									String[] iter = partes[8].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+							else
+							{
+								if(partes[6].equals("then:"))
+								{
+									String[] iter = partes[7].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+						}
+
+					}
+					catch (Exception e) {
+						throw new Exception("Invalid Entrance");
+					}
+				}
+			}
+			else if(cadauno.startsWith("while: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes[1].equals("not:"))
+				{
+					cadauno = "while: " + cadauno.substring(12);
+					try
+					{
+						while(evaluarCondicional(cadauno, arreglo) == 0)
+						{
+							if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+							{
+								if(partes[5].equals("do:"))
+								{
+									String[] iter = partes[6].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+							else
+							{
+								if(partes[4].equals("do:"))
+								{
+									String[] iter = partes[5].split(";");
+									metodoComandos(iter, arreglo);
+								}
+								else
+								{
+									throw new Exception("Invalid entrance");
+								}
+							}
+						}
+					}
+					catch (Exception e) {
+						throw new Exception("Invalid Entrance");
+					}
+				}
+				else
+				{
+					while(evaluarCondicional(cadauno, arreglo) == 1)
+					{
+						if(partes[1].equals("canPut:") || partes[1].equals("canPick"))
+						{
+							if(partes[5].equals("do:"))
+							{
+								String[] iter = partes[6].split(";");
+								metodoComandos(iter, arreglo);
+							}
+							else
+							{
+								throw new Exception("Invalid entrance");
+							}
+						}
+						else
+						{
+							if(partes[4].equals("do:"))
+							{
+								String[] iter = partes[5].split(";");
+								metodoComandos(iter, arreglo);
+							}
+							else
+							{
+								throw new Exception("Invalid entrance");
+							}
+						}
+					}
+				}
+
 
 			}
-
+			else if(cadauno.startsWith("repeat: "))
+			{
+				String[] partes = cadauno.split(" ");
+				if(partes.length >= 5 && partes[0].equals("repeat:"))
+				{
+					if(partes[0].equals("repeat"))
+					{
+						if(partes[2].equals("times:"))
+						{
+							int cantidad = 0;
+							boolean esta = false;
+							Iterator<Tupla> it = arreglo.iterator();
+							for(int i=0 ; i<arreglo.size() && esta == false ; i++)
+							{
+								if(arreglo.get(i).darNombre().equals(partes[3]))
+								{
+									cantidad = arreglo.get(i).darCantidad();
+									esta = true;
+								}
+							}
+							if(esta == false)
+							{
+								try
+								{
+									cantidad = Integer.parseInt(partes[3]);
+								} catch (Exception e) {
+									throw new Exception("Se esperaba un número o variable luego de times:");
+								}
+							}
+							if(cantidad > 0)
+							{
+								try
+								{
+									while(cantidad>0)
+									{
+										String[] ret = partes[1].split(";");
+										metodoComandos(ret, arreglo);
+										cantidad--;
+									}
+								}
+								catch (Exception e) {
+									throw new Exception("Error en el repeat");
+								}
+								
+							}
+						}
+						else
+						{
+							throw new Exception("Invalid Entrance");
+						}
+					}
+					else
+					{
+						throw new Exception("Invalid Entrance");
+					}
+				}
+			}
+			else
+			{
+				throw new Exception("Invalid Entrance");
+			}
 		}
-	}
 
+	}
 }
+
