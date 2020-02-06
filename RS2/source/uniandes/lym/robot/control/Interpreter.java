@@ -101,17 +101,24 @@ public class Interpreter   {
 			{
 				String parte2 = input.substring(7);
 				String[] cadenaFinal = parte2.split("BEGIN");
+				String[] comandos;
 
-				String sep1 = cadenaFinal[0].substring(4);
-				String[] nombres = sep1.split(",");
-
-				for(String s:nombres)
+				if( parte2.contains("VARS") )
 				{
-					Tupla t = new Tupla(s);
-					arr.add(t);
-				}
+					String sep1 = cadenaFinal[0].substring(4);
+					String[] nombres = sep1.split(",");
 
-				String[] comandos = cadenaFinal[1].split(";");
+					for(String s:nombres)
+					{
+						Tupla t = new Tupla(s);
+						arr.add(t);
+					}
+					 comandos = cadenaFinal[1].split(";");
+				}
+				else
+				{
+					 comandos = cadenaFinal[1].split(";");
+				}
 
 				metodoComandos(comandos, arr);
 
@@ -489,7 +496,7 @@ public class Interpreter   {
 						world.moveForward(cantidad);
 					}
 				}
-				else if(partes[2].equals("toThe") && partes.length == 4)
+				else if(partes[2].equals("toThe:") && partes.length == 4)
 				{
 					if(partes[0].equals("move:"))
 					{
@@ -550,9 +557,9 @@ public class Interpreter   {
 						}
 					}
 				}
-				else if(partes[2].equals("inDir")&& partes.length == 4)
+				else if(partes[2].equals("inDir:")&& partes.length == 4)
 				{
-					if(partes[0].equals("move"))
+					if(partes[0].equals("move:"))
 					{
 						boolean esta = false;
 						Iterator<Tupla> it = arreglo.iterator();
