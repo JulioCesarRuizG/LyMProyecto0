@@ -46,11 +46,13 @@ public class Interpreter   {
 	/**
 	 * Robot's world
 	 */
-	private RobotWorldDec world;   
+	private RobotWorldDec world;
+	private ArrayList<Tupla> arreglo;
 
 
 	public Interpreter()
 	{
+		arreglo = new ArrayList<Tupla>( );
 	}
 
 
@@ -96,10 +98,11 @@ public class Interpreter   {
 
 		try
 		{
-			ArrayList<Tupla> arr = new ArrayList<Interpreter.Tupla>();
+
 			if(input.startsWith("ROBOT_R")&&input.contains("BEGIN")&&input.endsWith("END"))
 			{
 				String parte2 = input.substring(7);
+			//	parte2.replace("\n", "");
 				String[] cadenaFinal = parte2.split("BEGIN");
 				String[] comandos;
 
@@ -111,27 +114,29 @@ public class Interpreter   {
 					for(String s:nombres)
 					{
 						Tupla t = new Tupla(s);
-						arr.add(t);
+						arreglo.add(t);
 					}
-					 comandos = cadenaFinal[1].split(";");
+					comandos = cadenaFinal[1].split(";");
 				}
 				else
 				{
-					 comandos = cadenaFinal[1].split(";");
+					comandos = cadenaFinal[1].split(";");
 				}
 
-				metodoComandos(comandos, arr);
+				metodoComandos( comandos );
 
 			}
 			else
 			{
 				throw new Exception("unknown command");
 			}
+			output.append("se ejecutaron las instrucciones correctamente");
 		}
 		catch( Exception e )
 		{
 			output.append( e.getMessage( ) );
 		}
+		
 		return output.toString( );
 
 
@@ -410,7 +415,7 @@ public class Interpreter   {
 	/**
 	 * metodo que ejecuta los comandos ingresados por el usuarios
 	 */
-	public void metodoComandos( String[] comandos, ArrayList<Tupla> arreglo) throws Error, Exception
+	public void metodoComandos( String[] comandos ) throws Error, Exception
 	{
 		Tupla c = null;
 		for(String cadauno : comandos)
@@ -842,18 +847,33 @@ public class Interpreter   {
 							}
 							else
 							{
-								world.putBalloons(cantidad);
+								try
+								{
+									world.putBalloons(cantidad);
+								}
+
+								catch( Exception e )
+								{
+									throw e;
+								}
 							}
 						}
 						else if(partes[3].equals("Chips"))
 						{
-							if(world.getMisGlobos() < cantidad)
+							if(world.getMisFichas() < cantidad)
 							{
 								throw new Exception("No hay suficientes chips");
 							}
 							else
 							{
-								world.putChips(cantidad);
+								try 
+								{
+									world.putChips(cantidad);
+								}
+								catch( Exception e )
+								{
+									throw e;
+								}
 							}
 						}
 						else
@@ -894,11 +914,25 @@ public class Interpreter   {
 					{
 						if(partes[3].equals("Balloons"))
 						{
-							world.grabBalloons(cantidad);
+							try
+							{
+								world.grabBalloons(cantidad);
+							}
+							catch( Exception e )
+							{
+								throw e;
+							}
 						}
 						else if(partes[3].equals("Chips"))
 						{
-							world.pickChips(cantidad);
+							try
+							{
+								world.pickChips(cantidad);
+							}
+							catch( Exception e )
+							{
+								throw e;
+							}
 						}
 						else
 						{
@@ -933,11 +967,11 @@ public class Interpreter   {
 					String[] bloquefinal2 = bloque2.split(";");
 					if(evaluarCondicional(true, cond, arreglo))
 					{
-						metodoComandos(bloquefinal1, arreglo);
+						metodoComandos(bloquefinal1);
 					}
 					else
 					{
-						metodoComandos(bloquefinal2, arreglo);
+						metodoComandos(bloquefinal2);
 					}
 				}
 				catch (Exception e) {
@@ -956,7 +990,7 @@ public class Interpreter   {
 					String[] bloquefinal = bloque.split(";");
 					while(evaluarCondicional(true, cond, arreglo))
 					{
-						metodoComandos(bloquefinal, arreglo);
+						metodoComandos(bloquefinal);
 					}
 				}
 				catch (Exception e) {
@@ -997,7 +1031,7 @@ public class Interpreter   {
 					{
 						while(cantidad != 0)
 						{
-							metodoComandos(bloquefinal, arreglo);
+							metodoComandos(bloquefinal);
 							cantidad--;
 						}
 					}
